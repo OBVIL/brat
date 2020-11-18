@@ -2,6 +2,15 @@
 
 # Convert text and standoff annotations into CoNLL format.
 
+# Modification de ce script par OBVIL pour le projet des entités nommées
+# Script modifié pour prendre en compte les caractères non-ascii
+# Faire une sortie au format "token\tannotation"
+# TODO Ne prend pas en compte les attributs
+# Depuis le dossier "tools"
+# python anntoconll.py chemin/vers/dossier/txtEtAnn
+# python anntoconll.py ../../lvp/lvp-zola/chapitre1.txt
+
+
 from __future__ import print_function
 
 import os
@@ -114,7 +123,9 @@ def attach_labels(labels, lines):
 # NERsuite tokenization: any alnum sequence is preserved as a single
 # token, while any non-alnum character is separated into a
 # single-character token. TODO: non-ASCII alnum.
-TOKENIZATION_REGEX = re.compile(r'([0-9a-zA-Z]+|[^0-9a-zA-Z])')
+
+# Script modifié ici : Ajout des caractères non-ascii (normalement) grâce à \w
+TOKENIZATION_REGEX = re.compile(r'([0-9a-zA-Z\w]+|[^0-9a-zA-Z\w])')
 
 NEWLINE_TERM_REGEX = re.compile(r'(.*?\n)')
 
@@ -153,7 +164,9 @@ def text_to_conll(f):
     if options.annsuffix:
         lines = relabel(lines, get_annotations(f.name))
 
-    lines = [[l[0], str(l[1]), str(l[2]), l[3]] if l else l for l in lines]
+    #lines = [[l[0], str(l[1]), str(l[2]), l[3]] if l else l for l in lines]
+    # Script modifié ici : on ne garde que le token et son annotation
+    lines = [[l[3], l[0]] if l else l for l in lines]
     return StringIO('\n'.join(('\t'.join(l) for l in lines)))
 
 
@@ -262,7 +275,13 @@ def parse_textbounds(f):
             continue
 
         id_, type_offsets, text = l.split('\t')
-        type_, start, end = type_offsets.split()
+
+        # Script modifié ici : Ajout exception pour les coordonnées
+        try:
+            type_, start, end = type_offsets.split()
+        except ValueError:
+            type_, start, _, end = type_offsets.split()
+
         start, end = int(start), int(end)
 
         textbounds.append(Textbound(start, end, type_, text))
