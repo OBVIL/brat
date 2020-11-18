@@ -1,3 +1,11 @@
+# Modification du fork
+
+Adaptation du script tools/anntoconll.py pour corriger les erreurs et adapter le format de sortie.
+
+Voir l'usage dans la documentation du script.
+
+Permet de passer d'un couple de fichiers annotés (chapitre1.txt + chapitre.ann) au format conll (chapitre1.conll)
+
 # brat rapid annotation tool (brat) #
 
 ## Documentation ##
